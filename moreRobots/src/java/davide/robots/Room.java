@@ -4,14 +4,30 @@ import cartago.*;
 
 public class Room extends Artifact 
 {
+	public class Point
+	{
+		public int X;
+		public int Y;
+		
+		public Point(int x, int y)
+		{
+			X=x;
+			Y=y;
+		}
+	}
+	
 	private static final int FLOOR_WIDTH 	= 4;
 	private static final int FLOOR_HEIGHT 	= 4;
 	private boolean[][] floor;
+	private Point rechargerPos;
 	
 	
 	void init() 
 	{
-		floor = new boolean[FLOOR_WIDTH][FLOOR_HEIGHT];
+		//defineObsProperty("count", 	0);
+		
+		floor 			= new boolean[FLOOR_WIDTH][FLOOR_HEIGHT];
+		rechargerPos 	= new Point(1, 3);
 		
 		for (int i=0;i<FLOOR_HEIGHT;i++)
 		{
@@ -26,6 +42,9 @@ public class Room extends Artifact
 		
 		defineObsProperty("floorWidth", 	FLOOR_WIDTH);
 		defineObsProperty("floorHeight", 	FLOOR_HEIGHT);
+		defineObsProperty("rechargerPosX", 	1);
+		defineObsProperty("rechargerPosY", 	3);
+		System.out.println("[ARTEFATTO STANZA] artefatto creato.");
 	}
 
 	/**
@@ -59,7 +78,7 @@ public class Room extends Artifact
 	 * @param newY
 	 */
 	@OPERATION
-	void moveToward(int currentX, int currentY, OpFeedbackParam<Integer> newX, OpFeedbackParam<Integer> newY)
+	void getNextCellCoordinates(int currentX, int currentY, OpFeedbackParam<Integer> newX, OpFeedbackParam<Integer> newY)
 	{
 		int _newX=0, _newY=0;
 		
@@ -109,6 +128,24 @@ public class Room extends Artifact
 		prop.updateValue(prop.intValue()+1);
 		signal("tick");
 	}
+	
+	@OPERATION
+	void moveTorwards(int currentX, int currentY, int destX, int destY, OpFeedbackParam<Integer> movementX, OpFeedbackParam<Integer> movementY)
+	{
+		movementX.set((int)Math.signum(currentX-destX));
+		movementY.set((int)Math.signum(currentY-destY));
+	}
+	
+	/**
+	 * Get the distance between the agent (at x,y) and the recharger. d is the resulting distance. 
+	 */
+	@OPERATION
+	void distanceFromRecharger(int x, int y, OpFeedbackParam<Integer> d)
+	{
+		d.set((int)Math.round(Math.sqrt(Math.pow(x-rechargerPos.X, 2) + Math.pow(y-rechargerPos.Y, 2))));
+	}
+	
+	
 }
 
 
